@@ -1,6 +1,6 @@
 ---
 title: "HW#2"
-author: "Daniil Deych"
+author: "Daniil Deych, Reilly Blakeslee, Alex Mykietyn"
 date: "`r Sys.Date()`"
 output: html_document
 ---
@@ -61,4 +61,8 @@ modelr::rmse(knn_saratoga, xtilde_test_df)
 head(xtrain, 2)
 head(xtilde_train_df, 2)
 ```
+
+# ???
+
+## Problem #2
 
