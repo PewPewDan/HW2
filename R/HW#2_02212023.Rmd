@@ -106,7 +106,7 @@ hotels_dev_test = testing(hotels_dev_split)
 
 m1_hotels_dev = glm(children ~ market_segment + adults + customer_type + is_repeated_guest, data = hotels_dev_train, family = 'binomial')
 m2_hotels_dev = glm(children ~ . - arrival_date, data = hotels_dev_train, family = 'binomial')
-m3_hotels_dev = lm(children ~ . - arrival_date + adults*stays_in_weekend_nights + adults*meal + adults*assigned_room_type, data = hotels_dev_train)
+m3_hotels_dev = glm(children ~ . - arrival_date + adults*stays_in_weekend_nights + adults*meal + adults*assigned_room_type, data = hotels_dev_train, family = 'binomial')
 ```
 ##RMSE Test
 ```{r}
@@ -114,7 +114,7 @@ rmse(m1_hotels_dev, data = hotels_dev_test)
 rmse(m2_hotels_dev, data = hotels_dev_test)
 rmse(m3_hotels_dev, data = hotels_dev_test)
 ```
-##Out-f-Sample Predict test
+##Out-of-Sample Predict test
 ```{r}
 phat_test_children1 = predict(m1_hotels_dev, hotels_dev_test, type = 'response')
 yhat_test_children1 = ifelse(phat_test_children1 > 0.5, 1, 0)
