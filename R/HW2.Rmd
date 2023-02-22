@@ -1,7 +1,8 @@
 ---
 title: "HW2"
 output: 
-  github_document
+  html_document:
+    keep_md: true
 date: "2023-02-20"
 ---
 
@@ -317,5 +318,5 @@ predict_table = tibble("FOLD_ID" = unlist(fold_id), "EXPECTED" = unlist(expected
 
 predict_table
 ```
-# Our model appears to be failry consistent, when looking at the final difference between predictions and actual results. While overall the predicted results are probably acceptable, there are constant outliers after mulitple runs of the model.
+Our model appears to be failry consistent, when looking at the final difference between predictions and actual results. While overall the predicted results are probably acceptable, there are constant outliers after mulitple runs of the model.
 
