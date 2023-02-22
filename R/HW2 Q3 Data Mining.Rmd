@@ -1,0 +1,141 @@
+---
+title: "HW#2_Q3"
+author: "Daniil Deych"
+date: "`r Sys.Date()`"
+output: html_document
+---
+### Question 3
+
+```{r, Question 3}
+
+library(tidyverse)
+library(ggplot2)
+library(modelr)
+library(rsample)
+library(mosaic)
+library(caret)
+library(purrr)
+library(readr)
+library(dplyr)
+library(MASS)
+library(ROCR)
+
+hotels_dev = read_csv("Data/hotels_dev.csv")
+hotels_val = read.csv("Data/hotels_val.csv")
+
+hotels_dev_split = initial_split(hotels_dev, prop = 0.8)
+hotels_dev_train = training(hotels_dev_split)
+hotels_dev_test = testing(hotels_dev_split)
+
+m1_hotels_dev = lm(children ~ market_segment + adults + customer_type + is_repeated_guest, data = hotels_dev_train)
+m2_hotels_dev = lm(children ~ . - arrival_date, data = hotels_dev_train)
+#For our model we used a stepwise selection model using BIC
+m3_hotels_dev = lm(children ~ market_segment + booking_changes + adults + meal + stays_in_week_nights + total_of_special_requests + previous_bookings_not_canceled + previous_cancellations + adults*stays_in_weekend_nights + adults*meal + reserved_room_type + adults*assigned_room_type + adults*customer_type*booking_changes, data = hotels_dev_train)
+```
+##RMSE Test
+```{r, RMSE Test}
+rmse(m1_hotels_dev, data = hotels_dev_test)
+rmse(m2_hotels_dev, data = hotels_dev_test)
+rmse(m3_hotels_dev, data = hotels_dev_test)
+```
+##Out-of-Sample Predict test
+```{r, Out-of-Sample Predict test}
+phat_test_children1 = predict(m1_hotels_dev, hotels_dev_test, type = 'response')
+yhat_test_children1 = ifelse(phat_test_children1 > 0.5, 1, 0)
+confusion_m1 = table(y = hotels_dev_test$children, yhat = yhat_test_children1)
+confusion_m1
+
+phat_test_children2 = predict(m2_hotels_dev, hotels_dev_test, type = 'response')
+yhat_test_children2 = ifelse(phat_test_children2 > 0.5, 1, 0)
+confusion_m2 = table(y = hotels_dev_test$children, yhat = yhat_test_children2)
+confusion_m2
+
+phat_test_children3 = predict(m3_hotels_dev, hotels_dev_test)
+yhat_test_children3 = ifelse(phat_test_children3 > 0.5, 1, 0)
+confusion_m3 = table(y = hotels_dev_test$children, yhat = yhat_test_children3)
+confusion_m3
+
+table(hotels_dev_test$children)
+```
+
+```{r Accuracy Calculations}
+
+m1_accuracy = sum(diag(confusion_m1))/sum(confusion_m1)
+m2_accuracy = sum(diag(confusion_m2))/sum(confusion_m2)
+m3_accuracy = sum(diag(confusion_m3))/sum(confusion_m3)
+null_accuracy = 8276/(8276+724)
+
+m1_accuracy
+m2_accuracy
+m3_accuracy
+null_accuracy
+
+# Absolute Improvement 
+
+m1_absimpr = m1_accuracy - null_accuracy
+m2_absimpr = m2_accuracy - null_accuracy
+m3_absimpr = m3_accuracy - null_accuracy
+
+m1_absimpr
+m2_absimpr
+m3_absimpr
+
+# Lift
+
+m1_lift = m1_accuracy/null_accuracy
+m2_lift = m2_accuracy/null_accuracy
+m3_lift = m3_accuracy/null_accuracy
+
+m1_lift
+m2_lift
+m3_lift
+```
+
+
+## Model Validation 
+
+#Step 1
+
+#ROC Curve
+
+```{r}
+m3_pred_values <- predict(m3_hotels_dev, hotels_val, type = "response")
+m3_pred_data <- prediction(m3_pred_values, hotels_val$children)
+
+roc_data <- performance(m3_pred_data, measure="tpr", x.measure="fpr")
+
+plot(roc_data, main = "ROC Curve for Model 3")
+
+```
+
+
+# Step 2 - creating K-fold
+
+```{r Step 2 K-fold}
+k_folds = 20
+
+hotels_val = hotels_val %>%
+  mutate(fold_number = rep(1:k_folds, length = nrow(hotels_val)) %>% sample())
+
+actual_children <- list()
+expected_children <- list()
+difference_children <- list()
+
+for (x in 1:20) {
+  fold <- hotels_val %>% 
+    filter(fold_number == x)
+
+phat <- predict(m3_hotels_dev, fold)
+
+expected_children[[x]] <- round(sum(phat), 2)
+actual_children [[x]] <- sum(fold$children)
+difference_children[[x]] <- round(expected_children[[x]] - actual_children[[x]], 2)
+}
+
+fold_id = list(seq(1, 20, by=1))
+
+predict_table = tibble("FOLD_ID" = unlist(fold_id), "EXPECTED" = unlist(expected_children), "ACTUAL" = unlist(actual_children), "DIFFERENCE" = unlist(difference_children))
+
+predict_table
+```
+# Our model appears to be failry consistent, when looking at the final difference between predictions and actual results. While overall the predicted results are probably acceptable, there are constant outliers after mulitple runs of the model.

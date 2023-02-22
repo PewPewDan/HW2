@@ -1,14 +1,13 @@
 ---
-title: "HW#2"
-author: "Daniil Deych, Reilly Blakeslee, Alex Mykietyn"
+title: "HW#2_Q3"
+author: "Daniil Deych"
 date: "`r Sys.Date()`"
 output: html_document
 ---
-#### HW#2
+### Question 3
 
-### Problem #1
+```{r, Question 3}
 
-```{r, include=FALSE, warning=TRUE}
 library(tidyverse)
 library(ggplot2)
 library(modelr)
@@ -18,81 +17,7 @@ library(caret)
 library(purrr)
 library(readr)
 library(dplyr)
-data(SaratogaHouses)
 
-saratoga_split = initial_split(SaratogaHouses, prop = 0.8)
-saratoga_train = training(saratoga_split)
-saratoga_test = testing(saratoga_split)
-```
-
-# "Medium" model
-
-```{r, include=FALSE, warning=TRUE}
-lm_medium = lm(price ~ . - pctCollege - sewer - waterfront - landValue - newConstruction, data=saratoga_train)
-
-rmse(lm_medium, saratoga_test)
-```
-# "Improved" linear model
-
-```{r, include=FALSE, warning=TRUE}
-lm_improved = lm(price ~ . - bathrooms - pctCollege - fireplaces + newConstruction*age + rooms*bedrooms + fireplaces*bedrooms + lotSize*landValue, data = saratoga_test)
-
-rmse(lm_improved, saratoga_test)
-```
-
-# KNN Model
-
-```{r, include=FALSE, warning=TRUE}
-saratoga_train_matrix = model.matrix(~ . - 1, data=saratoga_train)
-saratoga_train_matrix = data.frame(saratoga_train_matrix)
-saratoga_test_matrix = model.matrix(~ . - 1, data=saratoga_test)
-saratoga_test_matrix = data.frame(saratoga_test_matrix)
-
-ytrain = saratoga_train$price
-ytest = saratoga_test$price
-
-scale_train = apply(saratoga_train_matrix, 2, sd)
-
-saratoga_tilde_train_matrix = scale(saratoga_train_matrix, scale = scale_train)
-saratoga_tilde_train_matrix = data.frame(saratoga_tilde_train_matrix)
-  
-saratoga_tilde_test_matrix = scale(saratoga_test_matrix, scale = scale_train)
-saratoga_tilde_test_matrix = data.frame(saratoga_tilde_test_matrix)
-  
-knn_saratoga_15 = knnreg(price ~ . - pctCollege - bathrooms, data=saratoga_tilde_train_matrix, k=15)
-modelr::rmse(knn_saratoga_15, saratoga_tilde_test_matrix)
-
-set.seed(30)
-knn_vector = c(2:346)
-knn_saratoga_train = list()
-knn_saratoga_test = list()
-knn_rmse_vector = c()
-
-for (i in 2:length(knn_vector)){
-  knn_saratoga_train[[i]] = knnreg(price ~ . - pctCollege - bathrooms, data=saratoga_tilde_train_matrix, k = knn_vector[i])
-  knn_saratoga_test = saratoga_tilde_test_matrix %>%
-    mutate(PricePredict = predict(knn_saratoga_train[[i]], saratoga_tilde_test_matrix))
-  knn_rmse_vector[i] = modelr::rmse(knn_saratoga_train[[i]], saratoga_tilde_test_matrix)
-}
-
-plot(knn_vector, knn_rmse_vector)
-
-knn_rmse_vector_df = data_frame(knn_vector, knn_rmse_vector)
-```
-
-# Optimal K = 7
-
-```{r, include=FALSE, warning=TRUE}
-knn_saratoga_7 = knnreg(price ~ . - pctCollege - bathrooms, data=saratoga_tilde_train_matrix, k=7)
-modelr::rmse(knn_saratoga_7, saratoga_tilde_test_matrix)
-```
-
-
-### Problem #2
-
-### Problem #3
-
-```{r, include=FALSE, warning=TRUE}
 hotels_dev = read_csv("Data/hotels_dev.csv")
 hotels_val = read.csv("Data/hotels_val.csv")
 
@@ -105,13 +30,13 @@ m2_hotels_dev = lm(children ~ . - arrival_date, data = hotels_dev_train)
 m3_hotels_dev = lm(children ~ . + adults*stays_in_weekend_nights + adults*meal + adults*assigned_room_type, data = hotels_dev_train)
 ```
 ##RMSE Test
-```{r, include=FALSE, warning=TRUE}
+```{r, RMSE Test}
 rmse(m1_hotels_dev, data = hotels_dev_test)
 rmse(m2_hotels_dev, data = hotels_dev_test)
 rmse(m3_hotels_dev, data = hotels_dev_test)
 ```
 ##Out-of-Sample Predict test
-```{r, include=FALSE, warning=TRUE}
+```{r, Out-of-Sample Predict test}
 phat_test_children1 = predict(m1_hotels_dev, hotels_dev_test, type = 'response')
 yhat_test_children1 = ifelse(phat_test_children1 > 0.5, 1, 0)
 confusion_m1 = table(y = hotels_dev_test$children, yhat = yhat_test_children1)
@@ -130,8 +55,8 @@ confusion_m3
 table(hotels_dev_test$children)
 ```
 
-```{r include=FALSE, warning=TRUE}
-# Accuracy Calculations
+```{r Accuracy Calculations}
+
 m1_accuracy = sum(diag(confusion_m1))/sum(confusion_m1)
 m2_accuracy = sum(diag(confusion_m2))/sum(confusion_m2)
 m3_accuracy = sum(diag(confusion_m3))/sum(confusion_m3)
@@ -154,11 +79,13 @@ m1_lift = m1_accuracy/null_accuracy
 m2_lift = m2_accuracy/null_accuracy
 m3_lift = m3_accuracy/null_accuracy
 ```
-## Model Validation Step 1
+## Model Validation 
+
+#Step 1
 
 # Step 2 - creating K-fold
 
-```{r Step 2 K-fold, include=FALSE, warning=TRUE}
+```{r Step 2 K-fold}
 k_folds = 20
 
 hotels_val = hotels_val %>%
@@ -185,4 +112,4 @@ predict_table = tibble("FOLD_ID" = unlist(fold_id), "EXPECTED" = unlist(expected
 
 predict_table
 ```
-# The table suggests a fairly good, but somewhat inconsistent prediction. 
+# Our model appears to be failry inconsistent, when looking at the final difference between predictions and actual results. While overall the predicted results are probably acceptable, the outliers like fold #3 and #7 really suggest that further improvements can be made.
