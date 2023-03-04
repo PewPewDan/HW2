@@ -1,7 +1,7 @@
 ---
 title: "HW2"
 output: 
-  html_document:
+  pdf_document:
     keep_md: true
 date: "2023-02-20"
 ---
@@ -194,7 +194,7 @@ This model is showing that the worse that someone's credit score, the less proba
 
 ## Question 3
 
-```{r}
+```{r, include = FALSE}
 hotels_dev = read_csv("Data/hotels_dev.csv")
 hotels_val = read.csv("Data/hotels_val.csv")
 
@@ -211,7 +211,7 @@ m3_hotels_dev = stepAIC(m2_hotels_dev, direction = "both",
 
 
 ##RMSE Test
-```{r, RMSE Test}
+```{r, RMSE Test, echo=FALSE}
 rmse(m1_hotels_dev, data = hotels_dev_test)
 rmse(m2_hotels_dev, data = hotels_dev_test)
 rmse(m3_hotels_dev, data = hotels_dev_test)
@@ -219,7 +219,7 @@ rmse(m3_hotels_dev, data = hotels_dev_test)
 # While our RMSE test did not show significan improvement, the stability.simplicity of the resulting model is a welcomed improvement.
 ```
 ##Out-of-Sample Predict test
-```{r, Out-of-Sample Predict test}
+```{r, Out-of-Sample Predict test, echo=FALSE}
 phat_test_children1 = predict(m1_hotels_dev, hotels_dev_test, type = 'response')
 yhat_test_children1 = ifelse(phat_test_children1 > 0.5, 1, 0)
 confusion_m1 = table(y = hotels_dev_test$children, yhat = yhat_test_children1)
@@ -238,7 +238,7 @@ confusion_m3
 table(hotels_dev_test$children)
 ```
 
-```{r Accuracy Calculations}
+```{r Accuracy Calculations, echo=FALSE}
 
 m1_accuracy = sum(diag(confusion_m1))/sum(confusion_m1)
 m2_accuracy = sum(diag(confusion_m2))/sum(confusion_m2)
@@ -278,7 +278,7 @@ m3_lift
 
 #ROC Curve
 
-```{r}
+```{r, echo=FALSE}
 m3_pred_values <- predict(m3_hotels_dev, hotels_val, type = "response")
 m3_pred_data <- prediction(m3_pred_values, hotels_val$children)
 
@@ -291,7 +291,7 @@ plot(roc_data, main = "ROC Curve for Model 3")
 
 # Step 2 - creating K-fold
 
-```{r Step 2 K-fold}
+```{r Step 2 K-fold, echo=FALSE}
 k_folds = 20
 
 hotels_val = hotels_val %>%
