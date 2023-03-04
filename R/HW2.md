@@ -1,7 +1,7 @@
 ---
 title: "HW2"
 output:
-  pdf_document:
+  html_document:
     keep_md: true
 date: "2023-02-20"
 ---
@@ -49,7 +49,7 @@ The average RMSE for the linear model was lower in this case than the average RM
 
 
 
-![](HW2_files/figure-latex/unnamed-chunk-9-1.pdf)<!-- --> 
+![](HW2_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 
 ```
@@ -184,14 +184,14 @@ This model is showing that the worse that someone's credit score, the less proba
 
 #ROC Curve
 
-![](HW2_files/figure-latex/unnamed-chunk-12-1.pdf)<!-- --> 
+![](HW2_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 
 # Step 2 - creating K-fold
 
 
 ```
-## # A tibble: 20 x 4
+## # A tibble: 20 × 4
 ##    FOLD_ID EXPECTED ACTUAL DIFFERENCE
 ##      <dbl>    <dbl>  <int>      <dbl>
 ##  1       1     21.9     20       1.86
