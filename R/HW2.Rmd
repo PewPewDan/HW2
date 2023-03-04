@@ -1,7 +1,6 @@
 ---
 title: "HW2"
 output: 
-  pdf_document:
     keep_md: true
 date: "2023-02-20"
 ---
